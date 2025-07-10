@@ -17,8 +17,6 @@ This project is a **Flask-based GitHub webhook receiver** that listens to `push`
 │   │   └── routes.py       # Webhook & event display routes
 │   └── templates/          # Frontend templates
 │       ├── index.html
-│       ├── style.css
-│       └── script.js
 ├── .env                    # Environment variables (Mongo URI, secrets, etc.)
 ├── .gitignore              # Files/folders to ignore in Git
 ├── README.md               # You're here!
@@ -32,7 +30,7 @@ This project is a **Flask-based GitHub webhook receiver** that listens to `push`
 ### 1. Clone and Set Up Environment
 
 ```bash
-git clone https://github.com/your-username/webhook-receiver.git
+git clone https://github.com/yashkoli836/webhook-receiver.git
 cd webhook-receiver
 ```
 
@@ -75,7 +73,7 @@ python run.py
 ```
 
 - App runs at: [http://127.0.0.1:5000](http://127.0.0.1:5000)
-- Webhook endpoint: `POST /webhook/receiver`
+- Webhook endpoint: `POST /webhook`
 
 > ✅ For production, use [Gunicorn](https://gunicorn.org/)
 
@@ -101,7 +99,7 @@ ngrok http 5000
 In your GitHub repo (`action-repo`):
 
 - Go to **Settings > Webhooks > Add webhook**
-- **Payload URL**: `https://xxxx.ngrok-free.app/webhook/receiver`
+- **Payload URL**: `https://xxxx.ngrok-free.app/webhook`
 - **Content type**: `application/json`
 - **Secret**: (match your `.env` key)
 - **Events**: Select:
