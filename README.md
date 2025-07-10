@@ -145,4 +145,4 @@ Feel free to fork this repo, raise issues, or submit PRs to improve functionalit
 
 ## 📝 License
 
-MIT License © [Your Name](https://github.com/your-username)
+MIT License © [Yash Mahor](https://github.com/yashkoli836)
