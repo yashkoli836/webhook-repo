@@ -1,127 +1,140 @@
-Dev Assessment - Webhook Receiver
-Please use this repository for constructing the Flask webhook receiver.
+# 🔗 GitHub Webhook Receiver with Flask & MongoDB
 
-Setup
-Create a new virtual environment
+This project is a **Flask-based GitHub webhook receiver** that listens to `push` and `pull_request` events from a GitHub repository, stores them in **MongoDB**, and displays them on a web UI.
 
-pip install virtualenv
+---
 
-Create the virtual env
+## 📁 Project Structure
 
-virtualenv venv
-
-Install requirements
-
-pip install -r requirements.txt
-
-Run the flask application (In production, please use Gunicorn)
-
-python run.py
-
-The endpoint is at:
-
-POST [http://127.0.0.1:5000/webhook/receiver](http://127.0.0.1:5000/webhook/receiver)
-
-You need to use this as the base and setup the flask app. Integrate this with MongoDB (commented at app/extensions.py)
-
-Project Structure
 .
-├── run.py                  # Main entry point for the Flask application (formerly app.py)
+├── run.py # Entry point of the Flask application
 ├── app/
-│   ├── __init__.py         # Initializes the Flask app and registers blueprints
-│   ├── extensions.py       # Handles MongoDB client initialization
-│   ├── webhook/            # Contains webhook-related routes and logic
-│   │   ├── __init__.py     # Makes 'webhook' a Python package
-│   │   └── routes.py       # Defines the webhook and event display routes
-│   └── templates/          # All frontend files (HTML, CSS, JS) are here
-│       ├── index.html      # Main HTML content
-│       ├── style.css       # Stylesheet for the frontend
-│       └── script.js       # JavaScript for frontend logic and API calls
-├── .env                    # Environment variables (e.g., MongoDB URI, Webhook Secret)
-├── .gitignore              # Specifies intentionally untracked files to ignore
-├── README.md               # This file
-└── requirements.txt        # Python dependencies
+│ ├── init.py # Flask app setup & blueprint registration
+│ ├── extensions.py # MongoDB connection initialization
+│ ├── webhook/
+│ │ ├── init.py # Makes 'webhook' a package
+│ │ └── routes.py # Webhook & event display routes
+│ └── templates/ # Frontend templates
+│ ├── index.html
+│ ├── style.css
+│ └── script.js
+├── .env # Environment variables (Mongo URI, secrets, etc.)
+├── .gitignore # Files/folders to ignore in Git
+├── README.md # You're here!
+└── requirements.txt # Python dependencies
 
-Configuration and Usage (for your reference)
-This section provides additional details for setting up your .env and configuring GitHub webhooks, which are essential for the application to function.
+Copy
+Edit
 
-Configure Environment Variables
-Create a file named .env in the root directory of your webhook-repo and add the following content. Make sure to replace the placeholder values with your actual details.
+---
 
+## ⚙️ Setup Instructions
+
+### 1. Clone and Set Up Environment
+
+```bash
+git clone https://github.com/your-username/webhook-receiver.git
+cd webhook-receiver
+2. Create & Activate a Virtual Environment
+bash
+Copy
+Edit
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+3. Install Requirements
+bash
+Copy
+Edit
+pip install -r requirements.txt
+4. Configure Environment Variables
+Create a .env file in the root directory and add the following:
+
+env
+Copy
+Edit
 MONGO_URI="YOUR_MONGODB_CONNECTION_STRING"
 DB_NAME="github_webhook_db"
 COLLECTION_NAME="github_events"
-GITHUB_WEBHOOK_SECRET="YOUR_GENERATED_SECRET_KEY" # Optional but Recommended for security
+GITHUB_WEBHOOK_SECRET="YOUR_GENERATED_SECRET_KEY"
+🔐 You can generate a secret key using Python:
 
-MONGO_URI: Replace "YOUR_MONGODB_CONNECTION_STRING" with the connection string for your MongoDB database (e.g., from MongoDB Atlas). Ensure your MongoDB user has readWrite access and your IP address is whitelisted in MongoDB Atlas.
+python
+Copy
+Edit
+import secrets; secrets.token_hex(32)
+🚀 Running the Application
+bash
+Copy
+Edit
+python run.py
+App runs at: http://127.0.0.1:5000
 
-DB_NAME: The name of the database where events will be stored (default is github_webhook_db).
+Webhook endpoint: POST /webhook/receiver
 
-COLLECTION_NAME: The name of the collection within the database (default is github_events).
+✅ For production, use Gunicorn
 
-GITHUB_WEBHOOK_SECRET:
+🌍 Expose Flask to Internet (for GitHub Webhooks)
+GitHub needs a public endpoint, use ngrok:
 
-Optional but highly recommended for security.
+Install from https://ngrok.com/download
 
-Generate a strong, random string (e.g., using secrets.token_hex(32) in Python).
+Start tunnel:
 
-If you choose not to use a secret, you can leave this line empty (GITHUB_WEBHOOK_SECRET="") or remove it. However, this means your webhook endpoint will be accessible to anyone.
-
-Expose Your Local Server to the Internet (for GitHub Webhooks)
-GitHub needs to send webhooks to a publicly accessible URL. For local development, ngrok is a convenient tool for this.
-
-Install ngrok: If you haven't already, download and install ngrok from ngrok.com/download.
-
-Run ngrok: In a new terminal window (while your Flask app is still running), execute:
-
+bash
+Copy
+Edit
 ngrok http 5000
-```ngrok` will provide you with a public HTTPS forwarding URL (e.g., `https://xxxx-xxxx-xxxx-xxxx.ngrok-free.app`). **Copy this URL.** Note that `ngrok-free` tunnels often generate a new URL each time they start.
+Copy the HTTPS URL generated (e.g., https://xxxx.ngrok-free.app)
 
+🔧 GitHub Webhook Configuration
+In your GitHub repo (action-repo):
 
-GitHub Webhook Configuration (action-repo)
-Configure the webhook in your GitHub repository (action-repo) to send events to your running Flask application.
+Go to Settings > Webhooks > Add webhook
 
-Go to your action-repo on GitHub.
+Payload URL: https://xxxx.ngrok-free.app/webhook/receiver
 
-Navigate to Settings > Webhooks.
+Content type: application/json
 
-Click the Add webhook button (or edit your existing one).
+Secret: (match your .env key)
 
-Payload URL: Paste the ngrok HTTPS forwarding URL you copied, followed by /webhook/receiver.
+Events: Select:
 
-Example: https://xxxx-xxxx-xxxx-xxxx.ngrok-free.app/webhook/receiver
+✅ Pushes
 
-Content type: Select application/json.
+✅ Pull requests
 
-Secret:
+🧪 Testing
+Push: Commit & push code to the repo.
 
-If you set GITHUB_WEBHOOK_SECRET in your .env file, paste the exact same secret key here.
+Pull Request: Create/open/merge PR.
 
-If you chose not to use a secret, leave this field empty.
+Events will:
 
-Which events would you like to trigger this webhook?:
+Be logged in terminal
 
-Select "Let me select individual events."
+Stored in MongoDB
 
-Check the boxes for Pushes and Pull requests. (The "Merge" action is covered by the pull_request event when it's closed and merged).
+Shown on the UI (auto-refresh every 15s)
 
-Ensure Active is checked.
+🛠️ Technologies Used
+🐍 Python 3.8+
 
-Click Add webhook (or Update webhook).
+🌐 Flask
 
-Testing and Usage
-Once both the Flask application and the GitHub webhook are configured and running:
+🍃 MongoDB (with pymongo)
 
-Push Action: Make a commit and push to any branch in your action-repo.
+📡 GitHub Webhooks
 
-Pull Request Action: Create and open a pull request in your action-repo.
+🧪 ngrok
 
-Merge Action: Merge a pull request in your action-repo.
+🖥️ HTML + CSS + JavaScript
 
-You will observe the following:
+📌 Notes
+Secure your webhook with a secret to avoid spoofed requests.
 
-Events will be logged in your Flask application's terminal.
+MongoDB Atlas users: whitelist your IP address and ensure user has readWrite access.
 
-The data will be stored in your MongoDB database.
+🤝 Contributions
+Feel free to fork this repo, raise issues, or submit PRs to improve functionality or add support for more event types!
 
-The events will automatically appear on your web UI (http://127.0.0.1:5000/) within 15 seconds (due to the polling mechanism).
