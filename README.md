@@ -3,12 +3,11 @@
 This project is a **Flask-based GitHub webhook receiver** that listens to `push` and `pull_request` events from a GitHub repository, stores them in **MongoDB**, and displays them on a web UI.
 
 ---
-
 ## 🎥 Video Demo
 
-<iframe src="https://drive.google.com/file/d/1rl3IAEm-cBr30y5aQ1jnfrU42fAMRsz6/preview" width="100%" height="480" allow="autoplay"></iframe>
+[![Watch the Demo](assets/demo-thumbnail.png)](https://drive.google.com/file/d/1rl3IAEm-cBr30y5aQ1jnfrU42fAMRsz6/view?usp=sharing)
 
-> If the video does not render here, [click to watch it directly on Google Drive](https://drive.google.com/file/d/1rl3IAEm-cBr30y5aQ1jnfrU42fAMRsz6/view?usp=sharing).
+> 📺 Click the image above to watch the demo on Google Drive.
 
 ---
 
