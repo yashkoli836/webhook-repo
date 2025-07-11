@@ -22,106 +22,83 @@ This project is a **Flask-based GitHub webhook receiver** that listens to `push`
 │   │   ├── __init__.py     # Makes 'webhook' a package
 │   │   └── routes.py       # Webhook & event display routes
 │   └── templates/          # Frontend templates
-│       ├── index.html
+│       └── index.html
 ├── .env                    # Environment variables (Mongo URI, secrets, etc.)
 ├── .gitignore              # Files/folders to ignore in Git
-├── README.md               # You're here!
-└── requirements.txt        # Python dependencies
+├── Dockerfile              # Builds the Flask app image
+├── docker-compose.yml      # Defines Flask + MongoDB services
+├── requirements.txt        # Python dependencies
+└── README.md               # You're here!
 ```
 
 ---
 
-## ⚙️ Setup Instructions
+## ⚙️ Environment Setup
 
-### 1. Clone and Set Up Environment
-
-```bash
-git clone https://github.com/yashkoli836/webhook-receiver.git
-cd webhook-receiver
-```
-
-### 2. Create & Activate a Virtual Environment
-
-```bash
-pip install virtualenv
-virtualenv venv
-source venv/bin/activate
-```
-
-### 3. Install Requirements
-
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-
-Create a `.env` file in the root directory and add the following:
+Create a `.env` file in the root directory:
 
 ```env
-MONGO_URI="YOUR_MONGODB_CONNECTION_STRING"
-DB_NAME="github_webhook_db"
-COLLECTION_NAME="github_events"
-GITHUB_WEBHOOK_SECRET="YOUR_GENERATED_SECRET_KEY"
+MONGO_URI=mongodb://mongo:27017/
+DB_NAME=github_webhook_db
+COLLECTION_NAME=github_events
+GITHUB_WEBHOOK_SECRET=your_secret_key_here
 ```
 
-> 🔐 You can generate a secret key using Python:
-> ```python
-> import secrets; secrets.token_hex(32)
-> ```
+> 🔐 This file is ignored by Git and not copied into the Docker image.
+
+Generate a secret key using Python:
+```python
+import secrets; secrets.token_hex(32)
+```
 
 ---
 
-## 🚀 Running the Application
+## 🚀 Run with Docker (One Command)
 
 ```bash
-python run.py
+docker-compose up --build
 ```
 
-- App runs at: [http://127.0.0.1:5000](http://127.0.0.1:5000)
+- App will be live at: [http://localhost:5000](http://localhost:5000)
 - Webhook endpoint: `POST /webhook`
+- MongoDB is available internally at `mongo:27017`
 
-> ✅ For production, use [Gunicorn](https://gunicorn.org/)
-
----
-
-## 🌍 Expose Flask to Internet (for GitHub Webhooks)
-
-GitHub needs a public endpoint, use **ngrok**:
-
-1. Install from [https://ngrok.com/download](https://ngrok.com/download)
-2. Start tunnel:
-
+To stop the app:
 ```bash
-ngrok http 5000
+docker-compose down
 ```
-
-3. Copy the HTTPS URL generated (e.g., `https://xxxx.ngrok-free.app`)
 
 ---
 
 ## 🔧 GitHub Webhook Configuration
 
-In your GitHub repo (`action-repo`):
+In your GitHub repo:
 
 - Go to **Settings > Webhooks > Add webhook**
-- **Payload URL**: `https://xxxx.ngrok-free.app/webhook`
+- **Payload URL**: `http://<your-public-url>/webhook`
 - **Content type**: `application/json`
-- **Secret**: (match your `.env` key)
-- **Events**: Select:
-  - ✅ Pushes
-  - ✅ Pull requests
+- **Secret**: same as `GITHUB_WEBHOOK_SECRET`
+- **Events**: Enable:
+  - ✅ Push
+  - ✅ Pull Requests
+
+If you're testing locally, use **ngrok** to expose your port:
+
+```bash
+ngrok http 5000
+```
+
+Then update the Payload URL to `https://<ngrok-domain>.ngrok-free.app/webhook`.
 
 ---
 
 ## 🧪 Testing
 
-- **Push**: Commit & push code to the repo.
-- **Pull Request**: Create/open/merge PR.
-- Events will:
-  - Be logged in terminal
+- Push commits or open PRs in the connected repo
+- Events are:
   - Stored in MongoDB
-  - Shown on the UI (auto-refresh every 15s)
+  - Printed in terminal logs
+  - Shown in the UI (auto-refreshes every 15s)
 
 ---
 
@@ -133,19 +110,21 @@ In your GitHub repo (`action-repo`):
 - 📡 GitHub Webhooks
 - 🧪 ngrok
 - 🖥️ HTML + CSS + JavaScript
+- 🐳 Docker + Docker Compose
 
 ---
 
 ## 📌 Notes
 
-- Secure your webhook with a **secret** to avoid spoofed requests.
-- MongoDB Atlas users: whitelist your IP address and ensure user has `readWrite` access.
+- Webhook secrets ensure GitHub authenticity
+- MongoDB Atlas users must whitelist IP & enable `readWrite` access
+- Use `Gunicorn` + `nginx` in production
 
 ---
 
 ## 🤝 Contributions
 
-Feel free to fork this repo, raise issues, or submit PRs to improve functionality or add support for more event types!
+Feel free to fork this repo, raise issues, or submit PRs to improve functionality or extend webhook support!
 
 ---
 
